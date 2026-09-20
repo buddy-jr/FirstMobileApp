@@ -1,3 +1,4 @@
+// FirstMobileApp/Components/ProfileScreen.js
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BROWN } from '../Data/menuData';
@@ -16,9 +17,8 @@ export default function ProfileScreen({ onGoOrders, onGoFavorites }) {
         </View>
       </View>
 
-      <MenuRow icon="receipt-outline" label="My Orders" onPress={onGoOrders} />
+      <MenuRow icon="calendar-outline" label="My Reservations" onPress={onGoOrders} />
       <MenuRow icon="heart-outline" label="Favorites" onPress={onGoFavorites} />
-      <MenuRow icon="settings-outline" label="Settings" onPress={() => {}} />
       <MenuRow icon="log-out-outline" label="Log Out" onPress={logout} />
     </View>
   );

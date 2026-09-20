@@ -1,17 +1,19 @@
+// FirstMobileApp/Components/SplashScreen.js
 import { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BROWN, CREAM } from '../Data/menuData';
+import { ShopLogo } from './ItemImage';
 
 export default function SplashScreen({ onDone }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 2000); // 2 seconds like the poster says
+    const timer = setTimeout(onDone, 2000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 60 }}>☕</Text>
-      <Text style={styles.title}>Brew & Bean</Text>
+      <ShopLogo size={90} />
+      <Text style={styles.title}>Kapi kam MCO1</Text>
       <Text style={styles.subtitle}>COFFEE SHOP</Text>
       <Text style={styles.tagline}>Good Coffee. Better Days.</Text>
     </View>

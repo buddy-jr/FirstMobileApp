@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FirstMobileApp",
-    "slug": "FirstMobileApp",
+    "name": "CoffeeShop",
+    "slug": "coffeeShop",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.buddyjr.FirstMobileApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -23,6 +24,15 @@
     "plugins": [
       "expo-router",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b5706bde-cccc-40e3-af89-2acbc4cbcc6b"
+      }
+    },
+    "updates": {
+      "enabled": false
+    }
   }
 }

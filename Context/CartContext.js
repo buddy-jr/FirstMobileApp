@@ -1,7 +1,15 @@
+// FirstMobileApp/Context/CartContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CartContext = createContext();
+
+function makePickupCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return `BB-${code}`;
+}
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
@@ -32,7 +40,16 @@ export function CartProvider({ children }) {
   const addToCart = (drink, size, sugar, qty) => {
     setCart((prev) => [
       ...prev,
-      { cartId: Date.now().toString(), id: drink.id, name: drink.name, size, sugar, qty, price: drink.prices[size] },
+      {
+        cartId: Date.now().toString(),
+        id: drink.id,
+        name: drink.name,
+        emoji: drink.emoji,
+        size,
+        sugar,
+        qty,
+        price: drink.prices[size],
+      },
     ]);
   };
 
@@ -44,26 +61,44 @@ export function CartProvider({ children }) {
 
   const removeFromCart = (cartId) => setCart((prev) => prev.filter((i) => i.cartId !== cartId));
 
+  const clearCart = () => setCart([]);
+
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const placeOrder = (address) => {
+  const placeReservation = (details) => {
     const order = {
       orderId: Date.now().toString(),
+      pickupCode: makePickupCode(),
       date: new Date().toLocaleDateString(),
       items: cart,
       total: subtotal,
-      address,
-      status: 'Delivered',
+      type: 'Pick-up',
+      branch: details.branch,
+      pickupDay: details.dayLabel,
+      pickupDayKey: details.dayKey,
+      pickupTime: details.time,
+      name: details.name,
+      phone: details.phone,
+      payment: details.payment,
+      notes: details.notes || '',
+      status: 'Reserved',
     };
     setOrderHistory((prev) => [order, ...prev]);
     setCart([]);
     return order;
   };
 
+  const cancelReservation = (orderId) => {
+    setOrderHistory((prev) => prev.map((o) =>
+      o.orderId === orderId ? { ...o, status: 'Cancelled' } : o
+    ));
+  };
+
   return (
     <CartContext.Provider value={{
       cart, favorites, orderHistory,
-      toggleFavorite, addToCart, updateQty, removeFromCart, subtotal, placeOrder,
+      toggleFavorite, addToCart, updateQty, removeFromCart, clearCart,
+      subtotal, placeReservation, cancelReservation,
     }}>
       {children}
     </CartContext.Provider>

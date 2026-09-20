@@ -1,14 +1,10 @@
+// FirstMobileApp/Components/MenuScreen.js
 import { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DRINKS, CATEGORIES, BROWN, CREAM } from '../Data/menuData';
+import { DRINKS, CATEGORIES, CATEGORY_EMOJIS, BROWN, CREAM } from '../Data/menuData';
 import { useCart } from '../Context/CartContext';
-
-const categoryEmojis = {
-  Coffee: '☕',
-  'Non-Coffee': '🧋',
-  Pastries: '🥐',
-};
+import ItemImage, { CategoryIcon, ShopLogo } from './ItemImage';
 
 export default function MenuScreen({ onSelectDrink }) {
   const [activeCategory, setActiveCategory] = useState('Coffee');
@@ -23,16 +19,14 @@ export default function MenuScreen({ onSelectDrink }) {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header Bar */}
       <View style={styles.headerBar}>
-        <Text style={{ fontSize: 28 }}>☕</Text>
+        <ShopLogo size={34} />
         <View>
-          <Text style={styles.shopName}>Brew & Bean</Text>
+          <Text style={styles.shopName}>Kapi kam MCO1</Text>
           <Text style={styles.shopSub}>COFFEE SHOP</Text>
         </View>
       </View>
 
-      {/* Search Box */}
       <View style={styles.searchBox}>
         <Ionicons name="search" size={18} color="#999" />
         <TextInput
@@ -43,63 +37,60 @@ export default function MenuScreen({ onSelectDrink }) {
         />
       </View>
 
-      {/* Category Chips — fixed height, no tall box */}
       <View style={styles.chipsRow}>
-        {CATEGORIES.map((item) => (
-          <TouchableOpacity
-            key={item}
-            onPress={() => setActiveCategory(item)}
-            style={[styles.chip, activeCategory === item && styles.chipActive]}
-            activeOpacity={0.8}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                activeCategory === item && styles.chipTextActive,
-              ]}
+        {CATEGORIES.map((item) => {
+          const active = activeCategory === item;
+          return (
+            <TouchableOpacity
+              key={item}
+              onPress={() => setActiveCategory(item)}
+              style={[styles.chip, active && styles.chipActive]}
+              activeOpacity={0.8}
             >
-              {categoryEmojis[item]} {item}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <CategoryIcon category={item} emoji={CATEGORY_EMOJIS[item]} size={18} />
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
-      {/* Drinks / Items List */}
       <FlatList
         data={filteredDrinks}
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={{ padding: 12 }}
         columnWrapperStyle={{ gap: 12 }}
+        ListEmptyComponent={
+          <Text style={styles.empty}>Nothing matches that search. Try another name.</Text>
+        }
         renderItem={({ item }) => (
           <View style={styles.drinkCard}>
-            <TouchableOpacity
-              onPress={() => toggleFavorite(item.id)}
-              style={styles.favIcon}
-            >
-              <Ionicons
-                name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
-                size={18}
-                color={BROWN}
-              />
-            </TouchableOpacity>
+            <View style={styles.imageBox}>
+              <ItemImage id={item.id} emoji={item.emoji} size={40} />
 
-            {/* Per-item emoji icon */}
-            <View style={styles.imagePlaceholder}>
-              <Text style={{ fontSize: 40 }}>{item.emoji}</Text>
+              <TouchableOpacity
+                onPress={() => toggleFavorite(item.id)}
+                style={styles.favIcon}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              >
+                <Ionicons
+                  name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
+                  size={16}
+                  color={favorites.includes(item.id) ? BROWN : '#555'}
+                />
+              </TouchableOpacity>
             </View>
 
-            <Text style={styles.drinkName}>{item.name}</Text>
-            <View style={styles.drinkRow}>
-              <Text style={styles.drinkPrice}>₱{item.prices.Small}</Text>
-              <TouchableOpacity
-                style={styles.addBtnSmall}
-                onPress={() => onSelectDrink(item)}
-              >
-                <Text style={{ color: '#fff', fontWeight: '600', fontSize: 12 }}>
-                  Add
-                </Text>
-              </TouchableOpacity>
+            <View style={styles.cardBody}>
+              <Text style={styles.drinkName} numberOfLines={1}>{item.name}</Text>
+              <View style={styles.drinkRow}>
+                <Text style={styles.drinkPrice}>₱{item.prices.Small}</Text>
+                <TouchableOpacity style={styles.addBtnSmall} onPress={() => onSelectDrink(item)}>
+                  <Text style={{ color: '#fff', fontWeight: '600', fontSize: 12 }}>Add</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}
@@ -109,93 +100,64 @@ export default function MenuScreen({ onSelectDrink }) {
 }
 
 const styles = StyleSheet.create({
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    gap: 10,
-  },
-  shopName: {
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  shopSub: {
-    fontSize: 10,
-    color: '#999',
-  },
+  headerBar: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 10 },
+  shopName: { fontWeight: '700', fontSize: 16 },
+  shopSub: { fontSize: 10, color: '#999' },
   searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    marginHorizontal: 16,
-    padding: 10,
-    borderRadius: 12,
-    marginBottom: 12,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f2',
+    marginHorizontal: 16, padding: 10, borderRadius: 12, marginBottom: 12,
   },
-  chipsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    gap: 8,
-    alignItems: 'center',
-  },
+  chipsRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 12, gap: 8, alignItems: 'center' },
   chip: {
-    paddingHorizontal: 16,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f2f2f2',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 14, height: 40, borderRadius: 20,
+    backgroundColor: '#f2f2f2', justifyContent: 'center',
   },
-  chipActive: {
-    backgroundColor: BROWN,
-  },
-  chipText: {
-    color: '#555',
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  chipTextActive: {
-    color: '#fff',
-  },
+  chipActive: { backgroundColor: BROWN },
+  chipText: { color: '#555', fontWeight: '600', fontSize: 13 },
+  chipTextActive: { color: '#fff' },
+
   drinkCard: {
     flex: 1,
-    backgroundColor: CREAM,
-    borderRadius: 14,
-    padding: 10,
-    marginBottom: 12,
-  },
-  imagePlaceholder: {
-    height: 80,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+    borderRadius: 16,
+    marginBottom: 14,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: { elevation: 3 },
+    }),
+  },
+  imageBox: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: CREAM,
   },
   favIcon: {
     position: 'absolute',
     top: 8,
     right: 8,
-    zIndex: 1,
-  },
-  drinkName: {
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  drinkRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
+      android: { elevation: 2 },
+    }),
   },
-  drinkPrice: {
-    fontWeight: '700',
-    color: BROWN,
-  },
-  addBtnSmall: {
-    backgroundColor: BROWN,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
+  cardBody: { padding: 10 },
+  drinkName: { fontWeight: '600', marginBottom: 4, fontSize: 14 },
+  drinkRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  drinkPrice: { fontWeight: '700', color: BROWN },
+  addBtnSmall: { backgroundColor: BROWN, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
+  empty: { color: '#888', marginTop: 24, textAlign: 'center' },
+  
 });

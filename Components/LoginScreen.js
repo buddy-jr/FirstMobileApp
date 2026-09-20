@@ -1,7 +1,9 @@
+// FirstMobileApp/Components/LoginScreen.js
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { BROWN } from '../Data/menuData';
 import { useAuth } from '../Context/AuthContext';
+import { ShopLogo } from './ItemImage';
 
 export default function LoginScreen({ onGoSignup }) {
   const [email, setEmail] = useState('');
@@ -15,7 +17,9 @@ export default function LoginScreen({ onGoSignup }) {
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 50, textAlign: 'center' }}>☕</Text>
+      <View style={{ alignItems: 'center' }}>
+        <ShopLogo size={70} />
+      </View>
       <Text style={styles.title}>Welcome Back!</Text>
       <Text style={styles.subtitle}>Login to continue your coffee journey.</Text>
 

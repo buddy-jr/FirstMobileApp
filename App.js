@@ -1,3 +1,4 @@
+// FirstMobileApp/App.js
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,9 +9,9 @@ import LoginScreen from './Components/LoginScreen';
 import SignupScreen from './Components/SignupScreen';
 import MenuScreen from './Components/MenuScreen';
 import CustomizeScreen from './Components/CustomizeScreen';
-import CartScreen from './Components/CartScreen';
+import CartScreen from './Components/CarttScreen';
 import FavoritesScreen from './Components/FavoritesScreen';
-import CheckoutScreen from './Components/CheckoutScreen';
+import ReservationScreen from './Components/ReservationScreen';
 import OrderConfirmationScreen from './Components/OrderConfirmationScreen';
 import OrderHistoryScreen from './Components/OrderHistoryScreen';
 import ProfileScreen from './Components/ProfileScreen';
@@ -26,12 +27,10 @@ function MainApp() {
   const { user, loaded: authLoaded } = useAuth();
   const { cart, favorites } = useCart();
 
-  // Splash
   if (showSplash) {
     return <SplashScreen onDone={() => setShowSplash(false)} />;
   }
 
-  // Wait for auth to load
   if (!authLoaded) {
     return (
       <View style={styles.loading}>
@@ -40,7 +39,6 @@ function MainApp() {
     );
   }
 
-  // Auth screens
   if (!user) {
     return authScreen === 'login' ? (
       <LoginScreen onGoSignup={() => setAuthScreen('signup')} />
@@ -55,7 +53,7 @@ function MainApp() {
   };
 
   const hideBottomNav =
-    screen === 'checkout' || screen === 'confirmation' || screen === 'customize';
+    screen === 'reservation' || screen === 'confirmation' || screen === 'customize';
 
   return (
     <View style={styles.app}>
@@ -73,11 +71,11 @@ function MainApp() {
         )}
 
         {screen === 'cart' && (
-          <CartScreen onCheckout={() => setScreen('checkout')} />
+          <CartScreen onReserve={() => setScreen('reservation')} />
         )}
 
-        {screen === 'checkout' && (
-          <CheckoutScreen
+        {screen === 'reservation' && (
+          <ReservationScreen
             onPlaced={(order) => {
               setLastOrder(order);
               setScreen('confirmation');
@@ -110,15 +108,9 @@ function MainApp() {
         )}
       </View>
 
-      {/* Bottom navigation */}
       {!hideBottomNav && (
         <View style={styles.bottomNav}>
-          <TabButton
-            icon="home"
-            label="Home"
-            active={screen === 'menu'}
-            onPress={() => setScreen('menu')}
-          />
+          <TabButton icon="home" label="Home" active={screen === 'menu'} onPress={() => setScreen('menu')} />
           <TabButton
             icon="heart"
             label="Favorites"
@@ -133,12 +125,7 @@ function MainApp() {
             badge={cart?.length || 0}
             onPress={() => setScreen('cart')}
           />
-          <TabButton
-            icon="person"
-            label="Profile"
-            active={screen === 'profile'}
-            onPress={() => setScreen('profile')}
-          />
+          <TabButton icon="person" label="Profile" active={screen === 'profile'} onPress={() => setScreen('profile')} />
         </View>
       )}
     </View>
@@ -149,20 +136,14 @@ function TabButton({ icon, label, active, badge = 0, onPress }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.tabBtn} activeOpacity={0.7}>
       <View>
-        <Ionicons
-          name={active ? icon : `${icon}-outline`}
-          size={22}
-          color={active ? BROWN : '#999'}
-        />
+        <Ionicons name={active ? icon : `${icon}-outline`} size={22} color={active ? BROWN : '#999'} />
         {badge > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
           </View>
         )}
       </View>
-      <Text style={[styles.tabLabel, { color: active ? BROWN : '#999' }]}>
-        {label}
-      </Text>
+      <Text style={[styles.tabLabel, { color: active ? BROWN : '#999' }]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -178,49 +159,18 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  app: {
-    flex: 1,
-    marginTop: 50,
-    backgroundColor: '#fff',
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
+  app: { flex: 1, marginTop: 50, backgroundColor: '#fff' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   bottomNav: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderColor: '#eee',
-    paddingVertical: 10,
-    paddingBottom: 12,
-    backgroundColor: '#fff',
+    flexDirection: 'row', borderTopWidth: 1, borderColor: '#eee',
+    paddingVertical: 10, paddingBottom: 12, backgroundColor: '#fff',
   },
-  tabBtn: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  tabLabel: {
-    fontSize: 11,
-    marginTop: 2,
-    fontWeight: '500',
-  },
+  tabBtn: { alignItems: 'center', flex: 1 },
+  tabLabel: { fontSize: 11, marginTop: 2, fontWeight: '500' },
   badge: {
-    position: 'absolute',
-    top: -4,
-    right: -10,
-    backgroundColor: BROWN,
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
+    position: 'absolute', top: -4, right: -10, backgroundColor: BROWN,
+    borderRadius: 8, minWidth: 16, height: 16,
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3,
   },
-  badgeText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '700',
-  },
+  badgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
 });

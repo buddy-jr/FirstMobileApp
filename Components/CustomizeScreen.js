@@ -1,55 +1,75 @@
+// FirstMobileApp/Components/CustomizeScreen.js
 import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SIZES, SUGAR_LEVELS, BROWN, CREAM } from '../Data/menuData';
 import { useCart } from '../Context/CartContext';
+import ItemImage from './ItemImage';
 
-export default function CustomizeScreen({ drink, onDone }) {
+export default function CustomizeScreen({ drink, onDone, onAddedToCart }) {
   const [size, setSize] = useState('Small');
   const [sugarIndex, setSugarIndex] = useState(2);
   const [qty, setQty] = useState(1);
   const { addToCart } = useCart();
 
+  const isPastry = drink.category === 'Pastries';
   const price = drink.prices[size];
   const total = price * qty;
 
   const handleAdd = () => {
-    addToCart(drink, size, SUGAR_LEVELS[sugarIndex].label, qty);
-    onDone();
+    addToCart(drink, size, isPastry ? '—' : SUGAR_LEVELS[sugarIndex].label, qty);
+    (onAddedToCart || onDone)();
   };
 
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.screenHeader}>
-        <TouchableOpacity onPress={onDone}><Ionicons name="chevron-back" size={24} color="#333" /></TouchableOpacity>
-        <Text style={styles.screenTitle}>Customize Drink</Text>
+        <TouchableOpacity onPress={onDone}>
+          <Ionicons name="chevron-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.screenTitle}>{isPastry ? 'Customize Item' : 'Customize Drink'}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={{ padding: 16 }}>
-        <View style={styles.imagePlaceholderLarge}><Text style={{ fontSize: 60 }}>☕</Text></View>
+        <View style={styles.imageBoxLarge}>
+          <ItemImage id={drink.id} emoji={drink.emoji} size={70} />
+        </View>
+
         <Text style={styles.bigName}>{drink.name}</Text>
         <Text style={styles.bigPrice}>₱{price}</Text>
 
         <Text style={styles.label}>Size</Text>
         <View style={styles.row}>
           {SIZES.map((s) => (
-            <TouchableOpacity key={s} onPress={() => setSize(s)} style={[styles.sizeOption, size === s && styles.sizeOptionActive]}>
+            <TouchableOpacity
+              key={s}
+              onPress={() => setSize(s)}
+              style={[styles.sizeOption, size === s && styles.sizeOptionActive]}
+            >
               <Text style={{ color: size === s ? '#fff' : '#333', fontWeight: '600' }}>{s}</Text>
               <Text style={{ color: size === s ? '#fff' : '#666', fontSize: 12 }}>₱{drink.prices[s]}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <Text style={styles.label}>Sugar Level</Text>
-        <View style={styles.row}>
-          {SUGAR_LEVELS.map((s, i) => (
-            <TouchableOpacity key={s.label} onPress={() => setSugarIndex(i)} style={[styles.sugarOption, sugarIndex === i && styles.sugarOptionActive]}>
-              <Text style={{ color: sugarIndex === i ? '#fff' : '#333', fontWeight: '700' }}>{s.label}</Text>
-              <Text style={{ color: sugarIndex === i ? '#eee' : '#999', fontSize: 10 }}>{s.sub}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {!isPastry && (
+          <>
+            <Text style={styles.label}>Sugar Level</Text>
+            <View style={styles.row}>
+              {SUGAR_LEVELS.map((s, i) => (
+                <TouchableOpacity
+                  key={s.label}
+                  onPress={() => setSugarIndex(i)}
+                  style={[styles.sugarOption, sugarIndex === i && styles.sugarOptionActive]}
+                >
+                  <Text style={{ color: sugarIndex === i ? '#fff' : '#333', fontWeight: '700' }}>{s.label}</Text>
+                  <Text style={{ color: sugarIndex === i ? '#eee' : '#999', fontSize: 10 }}>{s.sub}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
 
         <Text style={styles.label}>Quantity</Text>
         <View style={styles.qtyRow}>
@@ -80,7 +100,10 @@ export default function CustomizeScreen({ drink, onDone }) {
 const styles = StyleSheet.create({
   screenHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
   screenTitle: { fontSize: 18, fontWeight: '700' },
-  imagePlaceholderLarge: { height: 160, backgroundColor: CREAM, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  imageBoxLarge: {
+    height: 160, backgroundColor: CREAM, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 12, overflow: 'hidden',
+  },
   bigName: { fontSize: 22, fontWeight: '700' },
   bigPrice: { fontSize: 18, color: BROWN, fontWeight: '700', marginBottom: 10 },
   label: { fontWeight: '700', marginTop: 20, marginBottom: 10 },
